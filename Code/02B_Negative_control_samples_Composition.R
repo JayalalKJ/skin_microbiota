@@ -1,14 +1,6 @@
 #!/usr/bin/env Rscript
 # =============================================================================
-# Script: Step_04_Composition_Barplots_MultiRank_All_Blank_Water_bySampleTypes.R
-# Goal  : 1) Load microeco object
-#         2) Make composition barplots using trans_abund for multiple tax ranks
-#         3) Export for:
-#              - All samples (faceted by SampleTypes)
-#              - Blank only
-#              - Water only
-#         4) Save PNG + PDF + interactive HTML
-# =============================================================================
+
 
 set.seed(123)
 
