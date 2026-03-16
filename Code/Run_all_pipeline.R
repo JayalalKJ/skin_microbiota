@@ -11,31 +11,20 @@
 options(stringsAsFactors = FALSE)
 
 # ---- Config ----------------------------------------------------------------
-scripts_dir <- "scripts_2"
+scripts_dir <- "Code"
 log_dir     <- file.path("results", "_pipeline_logs")
 dir.create(log_dir, recursive = TRUE, showWarnings = FALSE)
 
 pipeline <- c(
   #"00_project_setup.R",
   #"01_import_mothur_to_microeco.R",
-  #"02_remove_spikein_taxa.R",
-  #"03A_Blanks_visual_proofpack.R",
-  #"03B_Negative_control_samples_Composition.R",
-  #"03C_contaminant_removal_from_blanks.R",
-  #"03D_batch_diagnostics_before_conqur_twosets_Script_1.R",
-  #"03D_batch_correction_conqur_set6groups_Script_2.R",
-  #"03E_convert_to_microeco_obj.R",
-  #"04_rarefaction_HMHD_for_alpha.R",
-  #"05_alpha_diversity_HMHD.R",
-  #"06_Beta_diversity_HMHD.R",
-  #"07_Beta_diversity_HMHD_ENV_feed_water.R",
-  #"08_composition_analysis_HMHD_feed_water.R",
-  "09_Beta_diversity_HM_HD_Fish_ID.R",
-  "09A_Beta_diversity_Fish_HD_HM_feed_water.R"
-  #"12_network_SparCC_hindgut.R",
-  #"12B_LEFSE_LDA_GeneraLevelOTUs_HMHD_6TankGroups.R",
-  #"beta_diversity_subset_export_Aitchison_locked63.R"
-  
+  #"02A_Blanks_visual_proofpack.R",
+  #"02B_Negative_control_samples_Composition.R",
+  #"02C_contaminant_removal_from_blanks.R",
+  "03_rarefaction_Skin_sample_for_alpha.R",
+  "04_alpha_diversity_Skin_samples.R"
+  #"05_Beta_diversity_Skin_samples.R",
+  #"07_composition_analysis_Skin_water_samples.R"
 )
 
 # ---- Helpers ---------------------------------------------------------------
