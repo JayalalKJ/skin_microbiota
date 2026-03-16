@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # =============================================================================
-# 03_contaminant_removal_from_blanks.R  (METADATA-DRIVEN NEGATIVES + BUCKETED OTUs)
+# (METADATA-DRIVEN NEGATIVES + BUCKETED OTUs)
 # Uses SampleTypes column only:
 #   - Negative samples removed: SampleTypes %in% c("Blank","Water")
 # Silences contaminant OTUs using BUCKET RULES:
