@@ -1,14 +1,5 @@
 #!/usr/bin/env Rscript
 
-# =============================================================================
-# Script: Step_4_Negative_Controls_Composition_Plots_FULL_ONLY.R
-# Author: Jayalal K Jayanthan (updated for single Full_dataset folder)
-# Date  : 2025-07-29
-# Goal  : Produce FULL-dataset bar plots (Phylum→Genus) and a Genus-level heatmap
-#         Save all outputs + simple data exports under one folder:
-#         results/Step_04_Negative_Controls_heatmap_plots/Full_dataset
-# =============================================================================
-
 ## 0. Packages ----
 suppressPackageStartupMessages({
   library(microeco)
@@ -19,7 +10,7 @@ suppressPackageStartupMessages({
   library(cowplot)
   library(stringr)
   library(tools)
-  library(viridis)   # <-- needed for scale_fill_viridis_c()
+  library(viridis)   
 })
 
 ## 0a. Heatmap helpers (palette + tiles) ----
@@ -48,7 +39,7 @@ widen_tiles <- function(p, width = 1.2) {
 }
 
 ## 1. Load microeco object ----
-dataset_path <- "results/Step_02_remove_spikein_taxa/microeco_spikein_removed.rds"
+dataset_path <- "Results/Results_01_import_mothur_to_microeco/microeco_raw.rds"
 if (!file.exists(dataset_path)) stop("❌ Input RDS not found: ", dataset_path)
 
 mt <- readRDS(dataset_path)
@@ -84,7 +75,8 @@ ranks_to_use <- ranks_to_use[!is.na(ranks_to_use)]
 message("• Will plot ranks: ", paste(ranks_to_use, collapse = ", "))
 
 ## Facets (only those present will be used) ----
-facet_cols <- c("Tank", "SampleTypes", "Labs")
+#facet_cols <- c("Tank", "SampleTypes", "Labs")
+facet_cols <- c("Tanks", "SampleTypes")
 facet_cols <- facet_cols[facet_cols %in% colnames(mt$sample_table)]
 if (!length(facet_cols)) facet_cols <- NULL
 
@@ -96,7 +88,7 @@ fig_h       <- 16
 tile_width  <- 1.2
 palette_key <- "current" # "current" | "viridis" | "magma"
 
-out_dir <- file.path("results", "Step_03A_Blanks_Visual_proofpack_Negative_Controls_heatmap_plots", "Full_dataset")
+out_dir <- file.path("results", "Resuls_02A_Blanks_Visual_proofpack", "Full_dataset")
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 save_png_pdf <- function(file_base, plot, width, height, dpi = 600) {
@@ -246,4 +238,4 @@ if (is.na(genus_rank_for_heat)) {
   }
 }
 
-message("✓ FULL dataset plots + info saved under: ", normalizePath(out_dir))
+message("FULL dataset plots + info saved under: ", normalizePath(out_dir))

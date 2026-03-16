@@ -1,236 +1,228 @@
 #!/usr/bin/env Rscript
-
 # =============================================================================
-# Script: Step_4_Negative_Controls_Composition_Plots_AllFormats.R
-# Author: Jayalal K Jayanthan (extended outputs; FIXED htmlwidgets/plotly export)
-# Date  : 2025-08-22
+# Script: Step_04_Composition_Barplots_MultiRank_All_Blank_Water_bySampleTypes.R
 # Goal  : 1) Load microeco object
-#         2) Subset negative controls (Lab1, Lab2, Both_labs)
-#         3) Produce nested bar plots (Genera_level_OTUs by Classes)
-#         4) Save in PNG, PDF, SVG, EPS, TIFF, JPEG + interactive HTML
-# Notes : Fixes htmlwidgets::saveWidget errors on Windows by:
-#         - using a lab-specific libdir inside out_dir when pandoc not available
-#         - falling back to selfcontained=FALSE when needed
+#         2) Make composition barplots using trans_abund for multiple tax ranks
+#         3) Export for:
+#              - All samples (faceted by SampleTypes)
+#              - Blank only
+#              - Water only
+#         4) Save PNG + PDF + interactive HTML
 # =============================================================================
 
 set.seed(123)
 
-# ---- 0) Packages ------------------------------------------------------------
 suppressPackageStartupMessages({
   library(microeco)
   library(dplyr)
-  library(tidyr)
   library(tibble)
   library(ggplot2)
   library(grid)
-  library(gridExtra)
-  library(cowplot)
-  library(svglite)
   library(plotly)
   library(htmlwidgets)
+  library(readr)
 })
 
 # ---- 1) I/O -----------------------------------------------------------------
-rds_in   <- "results/Step_02_remove_spikein_taxa/microeco_spikein_removed.rds"
-out_base <- "results/Step_03B_Negative_Controls_Composition_Plots"
+rds_in   <- "results/Results_01_import_mothur_to_microeco/microeco_raw.rds"
+out_base <- "results/Results_02B_Negative_control_sample_composition_Plots_MultiRank"
 
 dir.create(out_base, recursive = TRUE, showWarnings = FALSE)
 
-if (!file.exists(rds_in)) stop("❌ Input RDS not found: ", rds_in)
+if (!file.exists(rds_in)) stop("Input RDS not found: ", rds_in)
 mt <- readRDS(rds_in)
-if (!inherits(mt, "microtable")) stop("❌ Input object is not a microeco::microtable")
-message("✅ Loaded microeco object: ", rds_in)
+if (!inherits(mt, "microtable")) stop("Input object is not a microeco::microtable")
 
-# ---- 2) Column checks + rank resolver --------------------------------------
-tt_cols <- colnames(mt$tax_table)
-st_cols <- colnames(mt$sample_table)
-
-# Allow either singular/plural column naming (your earlier scripts used both)
-rank_candidates <- list(
-  Genus   = c("Genera_level_OTUs", "Genera_level_OTU", "Genus_level_OTUs", "Genus_level_OTU"),
-  Class   = c("Classes", "Class")
-)
-
+# ---- 2) Column resolvers ----------------------------------------------------
 pick_col <- function(cands, available) {
   hit <- cands[cands %in% available]
   if (length(hit)) hit[1] else NA_character_
 }
 
-tax_genus_col <- pick_col(rank_candidates$Genus, tt_cols)
-tax_class_col <- pick_col(rank_candidates$Class, tt_cols)
+st_cols <- colnames(mt$sample_table)
+tt_cols <- colnames(mt$tax_table)
 
-if (is.na(tax_genus_col) || is.na(tax_class_col)) {
+sampletype_candidates <- "SampleTypes"
+sampletype_col <- pick_col(sampletype_candidates, st_cols)
+if (is.na(sampletype_col)) {
   stop(
-    "❌ Missing required taxonomy columns.\n",
-    "Needed: one of {", paste(rank_candidates$Genus, collapse = ", "), "} AND one of {",
-    paste(rank_candidates$Class, collapse = ", "), "}\n",
-    "Found tax_table cols: ", paste(tt_cols, collapse = ", ")
+    "sample_table must contain SampleTypes.\n",
+    "Tried: {", paste(sampletype_candidates, collapse = ", "), "}\n",
+    "Found: ", paste(st_cols, collapse = ", ")
   )
 }
+mt$sample_table[[sampletype_col]] <- trimws(as.character(mt$sample_table[[sampletype_col]]))
 
-if (!("Groups" %in% st_cols)) {
-  stop("❌ sample_table must contain column 'Groups' to select blanks. Found: ",
-       paste(st_cols, collapse = ", "))
-}
+rank_map <- list(
+  Phyla             = c("Phyla", "Phylum"),
+  Classes           = c("Classes", "Class"),
+  Orders            = c("Orders", "Order"),
+  Families          = c("Families", "Family"),
+  Genera            = c("Genera", "Genus"),
+  Genera_level_OTUs = c("Genera_level_OTUs", "Genus_level_OTUs", "Genera_level_OTU", "Genus_level_OTU")
+)
+rank_cols <- lapply(rank_map, pick_col, available = tt_cols)
 
-# Optional facet vars (only those present will be used)
-facet_vars_default <- c("Labs", "DNA_Extraction_Batch_ID", "Groups")
-facet_vars <- facet_vars_default[facet_vars_default %in% st_cols]
-if (!length(facet_vars)) {
-  warning("⚠️ None of facet vars found: ", paste(facet_vars_default, collapse = ", "),
-          " — plots will be generated without facetting.")
-  facet_vars <- NULL
-}
-
-message("✅ Using taxrank (genus): ", tax_genus_col)
-message("✅ Using high_level (class): ", tax_class_col)
-message("✅ Facet vars: ", if (is.null(facet_vars)) "NONE" else paste(facet_vars, collapse = ", "))
-
-# ---- 3) Define negative-control sets ---------------------------------------
-labs_neg <- list(
-  Lab1      = "Blank1",
-  Lab2      = c("Blank2","Blank3","Blank4","Blank5","Blank6","Blank7",
-                "Blank8","Blank9","Blank10","Blank11","Blank12",
-                "Blank13","Blank14","Blank15","Blank16","Blank17",
-                "Blank18","Blank19"),
-  Both_labs = c("Blank1","Blank2","Blank3","Blank4","Blank5","Blank6","Blank7",
-                "Blank8","Blank9","Blank10","Blank11","Blank12","Blank13",
-                "Blank14","Blank15","Blank16","Blank17","Blank18","Blank19")
+# ---- 3) Plot sets -----------------------------------------------------------
+plot_sets <- list(
+  All_samples = NULL,
+  Blank_only  = "Blank",
+  Water_only  = "Water"
 )
 
-# ---- 4) Plot builder: nested barplot ---------------------------------------
-make_nested_plot <- function(trans_obj, facets = NULL) {
+# ---- 4) Subsetting helper ---------------------------------------------------
+subset_microtable_by_sampletypes <- function(m, sampletype_col, keep_types = NULL) {
+  m2 <- m$clone(deep = TRUE)
+  st <- as.data.frame(m2$sample_table)
   
-  # NOTE: microeco uses ggnested if ggnested package is installed.
-  # If it is not installed, plot_bar(ggnested=TRUE) can error.
-  # We handle that by trying ggnested=TRUE and falling back to ggnested=FALSE.
-  
-  p <- try(
-    trans_obj$plot_bar(
-      ggnested = TRUE,
-      facet    = facets
-    ),
-    silent = TRUE
-  )
-  
-  if (inherits(p, "try-error")) {
-    warning("⚠️ ggnested=TRUE failed (ggnested package missing?). Falling back to ggnested=FALSE.")
-    p <- trans_obj$plot_bar(
-      ggnested = FALSE,
-      facet    = facets
-    )
+  if (is.null(keep_types)) {
+    m2$tidy_dataset()
+    return(m2)
   }
   
+  keep_mask <- as.character(st[[sampletype_col]]) %in% keep_types
+  st2 <- st[keep_mask, , drop = FALSE]
+  if (nrow(st2) == 0) return(NULL)
+  
+  keep_ids <- rownames(st2)
+  m2$sample_table <- st2
+  m2$otu_table <- m2$otu_table[, keep_ids, drop = FALSE]
+  m2$tidy_dataset()
+  m2
+}
+
+# ---- 5) Plot builder --------------------------------------------------------
+make_barplot <- function(m, taxrank_col, ntaxa, facet_var = NULL) {
+  st <- as.data.frame(m$sample_table)
+  
+  if ("Sample_ID" %in% colnames(st)) {
+    rownames(st) <- as.character(st$Sample_ID)
+    m$sample_table <- st
+    
+    if (all(rownames(st) %in% colnames(m$otu_table))) {
+      m$otu_table <- m$otu_table[, rownames(st), drop = FALSE]
+    }
+    m$tidy_dataset()
+  }
+  
+  t1 <- trans_abund$new(dataset = m, taxrank = taxrank_col, ntaxa = ntaxa)
+  
+  p <- t1$plot_bar(
+    others_color = "grey70",
+    facet = facet_var,
+    xtext_keep = TRUE,
+    legend_text_italic = FALSE
+  )
+  
   p +
-    theme_classic() +
+    theme_classic(base_size = 13) +
     theme(
-      axis.title      = element_text(size = 16, face = "bold", family = "Times New Roman"),
-      axis.text.x     = element_text(size = 14, angle = 65, hjust = 1,
-                                     face = "bold", family = "Times New Roman"),
-      axis.text.y     = element_text(size = 16, family = "Times New Roman"),
-      strip.text      = element_text(size = 16, face = "bold", family = "Times New Roman"),
-      legend.title    = element_text(size = 13, face = "bold", family = "Times New Roman"),
-      legend.text     = element_text(size = 12, face = "bold", family = "Times New Roman"),
-      legend.key.size = unit(0.4, "cm"),
-      legend.spacing  = unit(0.05, "cm"),
-      plot.title      = element_text(size = 14, face = "bold", hjust = 0.5,
-                                     family = "Times New Roman"),
-      plot.margin     = margin(3, 3, 3, 3)
+      axis.title  = element_text(size = 14, face = "bold"),
+      axis.text.x = element_text(size = 6, angle = 65,  vjust = 1, hjust = 1),
+      axis.ticks.x = element_line(linewidth = 0.2),
+      strip.text  = element_text(size = 12, face = "bold"),
+      legend.title = element_text(size = 12, face = "bold"),
+      legend.text  = element_text(size = 10),
+      legend.key.size = unit(0.35, "cm"),
+      plot.title = element_text(size = 13, face = "bold", hjust = 0.5),
+      plot.margin = margin(6, 6, 6, 6)
     ) +
     labs(
       x = "Samples",
-      y = "Relative abundance (%)",
-      fill = tax_genus_col
-    ) +
-    guides(fill = guide_legend(ncol = 2, byrow = TRUE), colour = "none")
+      y = "Relative abundance (%)"
+    )
 }
 
-# ---- 5) Export helper: PNG/PDF/SVG/EPS/TIFF/JPEG + HTML --------------------
-save_all_formats <- function(p, out_dir, lab_name) {
-  
+# ---- 6) Export helper (PNG + PDF + HTML only) -------------------------------
+save_all_formats <- function(p, out_dir, prefix) {
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
   
-  # Common width/height
-  w <- 26; h <- 14; dpi <- 1200
+  w <- 16; h <- 9; dpi <- 450
   
-  formats <- list(
-    png  = list(ext = "png",  dev = "png"),
-    pdf  = list(ext = "pdf",  dev = cairo_pdf),
-    svg  = list(ext = "svg",  dev = svglite::svglite),
-    eps  = list(ext = "eps",  dev = cairo_ps),
-    tiff = list(ext = "tiff", dev = "tiff"),
-    jpeg = list(ext = "jpeg", dev = "jpeg")
+  ggsave(
+    filename = file.path(out_dir, paste0(prefix, ".png")),
+    plot = p, width = w, height = h, dpi = dpi, bg = "white"
   )
   
-  for (fmt in names(formats)) {
-    f <- formats[[fmt]]
-    out_file <- file.path(out_dir, paste0("nested_barplot_", lab_name, ".", f$ext))
-    ggsave(out_file, plot = p, width = w, height = h, dpi = dpi, device = f$dev)
-  }
+  ggsave(
+    filename = file.path(out_dir, paste0(prefix, ".pdf")),
+    plot = p, width = w, height = h, device = cairo_pdf, bg = "white"
+  )
   
-  # Interactive HTML (FIXED)
-  html_file <- file.path(out_dir, paste0("nested_barplot_", lab_name, ".html"))
+  html_file <- file.path(out_dir, paste0(prefix, ".html"))
   widget <- plotly::ggplotly(p)
   
   has_pandoc <- requireNamespace("rmarkdown", quietly = TRUE) &&
     isTRUE(rmarkdown::pandoc_available())
   
   if (has_pandoc) {
-    # One-file HTML
     htmlwidgets::saveWidget(widget, file = html_file, selfcontained = TRUE)
   } else {
-    # No pandoc => write dependencies to a controlled libdir in out_dir
-    libdir <- file.path(out_dir, paste0("nested_barplot_", lab_name, "_files"))
+    libdir <- file.path(out_dir, paste0(prefix, "_files"))
     dir.create(libdir, recursive = TRUE, showWarnings = FALSE)
-    
-    # selfcontained=FALSE avoids normalizePath mustWork crashes on Windows
     htmlwidgets::saveWidget(widget, file = html_file, selfcontained = FALSE, libdir = libdir)
   }
-  
-  message("✅ Saved ", lab_name, " plots → ", normalizePath(out_dir, winslash = "/", mustWork = FALSE))
 }
 
-# ---- 6) Main loop over Lab1/Lab2/Both --------------------------------------
-for (lab_name in names(labs_neg)) {
+# ---- 7) ntaxa per rank ------------------------------------------------------
+ntaxa_by_rank <- c(
+  Phyla = 8,
+  Classes = 12,
+  Orders = 15,
+  Families = 20,
+  Genera = 30,
+  Genera_level_OTUs = 50
+)
+
+# ---- 8) Main loop -----------------------------------------------------------
+available_types <- sort(unique(mt$sample_table[[sampletype_col]]))
+message("SampleTypes: ", paste(available_types, collapse = ", "))
+
+readr::write_tsv(
+  tibble(
+    SampleTypes = names(table(mt$sample_table[[sampletype_col]])),
+    n = as.integer(table(mt$sample_table[[sampletype_col]]))
+  ) %>% arrange(desc(n)),
+  file.path(out_base, "SampleTypes_counts.tsv")
+)
+
+for (rank_name in names(rank_cols)) {
+  taxrank_col <- rank_cols[[rank_name]]
   
-  negs <- labs_neg[[lab_name]]
-  message("\n==============================")
-  message("▶ Processing: ", lab_name)
-  message("==============================")
-  
-  # Deep-clone microtable (safe copy for R6 object)
-  mt_sub <- mt$clone(deep = TRUE)
-  
-  # Subset to blanks by Groups
-  mt_sub$sample_table <- mt_sub$sample_table %>%
-    dplyr::filter(.data$Groups %in% negs)
-  
-  # If nothing left, skip safely
-  if (nrow(mt_sub$sample_table) == 0) {
-    warning("⚠️ No samples found for ", lab_name, " (Groups in: ", paste(negs, collapse = ", "), "). Skipping.")
+  if (is.na(taxrank_col)) {
+    warning("Skipping rank '", rank_name, "': no matching column found in tax_table.")
     next
   }
   
-  # Tidy to sync otu_table/sample_table
-  mt_sub$tidy_dataset()
+  ntaxa <- unname(ntaxa_by_rank[[rank_name]])
+  if (is.na(ntaxa) || !is.finite(ntaxa)) ntaxa <- 20
   
-  # Build transformed abundance object
-  trans_obj <- trans_abund$new(
-    dataset                = mt_sub,
-    taxrank                = tax_genus_col,
-    ntaxa                  = 130,
-    show                   = 0,
-    high_level             = tax_class_col,
-    delete_taxonomy_prefix = FALSE
-  )
-  
-  # Plot
-  p <- make_nested_plot(trans_obj, facet_vars) +
-    ggtitle(paste0("Non-template DNA-extraction blanks (", lab_name, ")"))
-  
-  # Save
-  save_all_formats(p, file.path(out_base, lab_name), lab_name)
+  for (set_name in names(plot_sets)) {
+    keep_types <- plot_sets[[set_name]]
+    
+    mt_sub <- subset_microtable_by_sampletypes(mt, sampletype_col, keep_types = keep_types)
+    if (is.null(mt_sub)) {
+      warning("No samples for ", set_name, " (rank ", rank_name, "). Skipping.")
+      next
+    }
+    
+    facet_var <- if (set_name == "All_samples") sampletype_col else NULL
+    
+    p <- make_barplot(mt_sub, taxrank_col = taxrank_col, ntaxa = ntaxa, facet_var = facet_var) +
+      ggtitle(
+        if (set_name == "All_samples") {
+          paste0(rank_name, " composition (Top ", ntaxa, ") — All samples (", sampletype_col, ")")
+        } else {
+          paste0(rank_name, " composition (Top ", ntaxa, ") — ", set_name)
+        }
+      )
+    
+    out_dir <- file.path(out_base, rank_name, set_name)
+    prefix  <- paste0("barplot_", rank_name, "_top", ntaxa, "_", set_name)
+    
+    save_all_formats(p, out_dir, prefix)
+    message("Saved: ", file.path(out_dir, prefix))
+  }
 }
 
-message("\n🎉 Done! All Lab1, Lab2, and Both_labs plots exported (plus HTML).")
-message("Output base: ", normalizePath(out_base, winslash = "/", mustWork = FALSE))
+message("Done. Output: ", normalizePath(out_base, winslash = "/", mustWork = FALSE))

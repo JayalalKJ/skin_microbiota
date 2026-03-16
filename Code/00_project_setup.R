@@ -1,42 +1,20 @@
-#!/usr/bin/env Rscript
-# =============================================================================
-# 00_project_setup.R
-# Jayalal K Jayanthan
-# PhD candidate (2021– 2026)
-# Research group: Seafood Science
-# Institute: The Norwegian College of Fishery Science
-# Faculty: Faculty of Biosciences, Fisheries, and Economics
-# Campus: UiT Campus Tromsø
-# UiT The Arctic University of Norway
-# =============================================================================
+# R
+# Project setup script: create folders, ensure renv, install required packages,
+# snapshot environment, and save session/package version info.
 
+# Configuration ---------------------------------------------------------------
 options(repos = c(CRAN = "https://cloud.r-project.org"))
-options(timeout = 1000)
+options(timeout = 1000)               # network timeout (seconds)
+install_opts <- list(                 # optional per-package R CMD INSTALL flags
+  # xml2 = "--no-lock"
+)
 
-dir.create("scripts", recursive = TRUE, showWarnings = FALSE)
-dir.create("data",    recursive = TRUE, showWarnings = FALSE)
-dir.create("results", recursive = TRUE, showWarnings = FALSE)
-
-out_dir <- file.path("results", "Step_00_setup")
-dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
-
-stopifnot(requireNamespace("utils", quietly = TRUE))
-
-if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
-suppressPackageStartupMessages(library(renv))
-
-if (!file.exists("renv.lock")) {
-  renv::init(bare = TRUE)
-} else {
-  renv::activate()
-  renv::restore(prompt = FALSE)
-}
-
-if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
-suppressPackageStartupMessages(library(BiocManager))
-
-if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")
-suppressPackageStartupMessages(library(remotes))
+dirs <- list(
+  scripts = "scripts",
+  data    = "data",
+  results = "results",
+  out     = file.path("results", "Step_00_setup")
+)
 
 cran_pkgs <- c(
   "microeco", "file2meco",
@@ -46,9 +24,7 @@ cran_pkgs <- c(
   "svglite"
 )
 
-bioc_pkgs <- c(
-  "phyloseq", "decontam", "DESeq2", "edgeR"
-)
+bioc_pkgs <- c("phyloseq", "decontam", "DESeq2", "edgeR")
 
 github_repos <- c(
   "ChiLiubio/microeco",
@@ -56,21 +32,43 @@ github_repos <- c(
   "taowenmicro/ggClusterNet"
 )
 
-install_cran <- function(pkgs) {
-  ip <- rownames(installed.packages())
-  miss <- setdiff(pkgs, ip)
-  if (length(miss)) install.packages(miss, dependencies = TRUE)
-  invisible(miss)
+# Helpers ---------------------------------------------------------------------
+dir_create <- function(path) {
+  if (!dir.exists(path)) {
+    dir.create(path, recursive = TRUE, showWarnings = FALSE)
+    message("Created: ", path)
+  }
 }
 
-install_bioc <- function(pkgs) {
-  ip <- rownames(installed.packages())
-  miss <- setdiff(pkgs, ip)
-  if (length(miss)) BiocManager::install(miss, ask = FALSE, update = FALSE)
-  invisible(miss)
+ensure_package <- function(pkg, lib = .libPaths()[1]) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    install.packages(pkg, dependencies = TRUE)
+  }
+  invisible(TRUE)
 }
 
-install_github <- function(repos) {
+install_missing_cran <- function(pkgs) {
+  installed <- rownames(installed.packages())
+  missing <- setdiff(pkgs, installed)
+  if (length(missing)) {
+    install.packages(missing, dependencies = TRUE)
+  }
+  invisible(missing)
+}
+
+install_missing_bioc <- function(pkgs) {
+  installed <- rownames(installed.packages())
+  missing <- setdiff(pkgs, installed)
+  if (length(missing)) {
+    BiocManager::install(missing, ask = FALSE, update = FALSE)
+  }
+  invisible(missing)
+}
+
+install_missing_github <- function(repos) {
+  if (!requireNamespace("remotes", quietly = TRUE)) {
+    install.packages("remotes")
+  }
   for (repo in repos) {
     pkg <- sub(".*/", "", repo)
     if (!requireNamespace(pkg, quietly = TRUE)) {
@@ -80,21 +78,65 @@ install_github <- function(repos) {
   invisible(TRUE)
 }
 
-install_cran(cran_pkgs)
-install_bioc(bioc_pkgs)
-install_github(github_repos)
+safe_snapshot <- function() {
+  tryCatch({
+    renv::snapshot(prompt = FALSE)
+    TRUE
+  }, error = function(e) {
+    warning("renv snapshot failed: ", conditionMessage(e))
+    FALSE
+  })
+}
 
-renv::snapshot(prompt = FALSE)
+# Run setup ------------------------------------------------------------------
+# Create directories
+lapply(dirs, dir_create)
 
-if (!requireNamespace("sessioninfo", quietly = TRUE)) install.packages("sessioninfo")
+# Ensure minimal base packages for installer tasks
+ensure_package("utils")
+ensure_package("remotes")    # used for GitHub installs
+ensure_package("BiocManager")# used for Bioconductor installs
+
+# renv bootstrap / restore ---------------------------------------------------
+if (!requireNamespace("renv", quietly = TRUE)) {
+  install.packages("renv")
+}
+suppressPackageStartupMessages(library(renv))
+
+# Use an explicit workflow: init if lock missing, else restore
+if (!file.exists("renv.lock")) {
+  message("Initializing renv (bare)...")
+  renv::init(bare = TRUE)
+} else {
+  message("Activating renv and restoring from renv.lock...")
+  renv::activate()
+  renv::restore(prompt = FALSE)
+}
+
+# Optionally set install-time flags for R CMD INSTALL
+if (length(install_opts)) {
+  options(install.opts = install_opts)
+}
+
+# Install packages -----------------------------------------------------------
+install_missing_cran(cran_pkgs)
+install_missing_bioc(bioc_pkgs)
+install_missing_github(github_repos)
+
+# Snapshot environment and record versions -----------------------------------
+safe_snapshot()
+
+# Save session info and installed package versions for reproducibility
+ensure_package("sessioninfo")
 si <- capture.output(sessioninfo::session_info())
-writeLines(si, con = file.path(out_dir, "session_info.txt"))
+writeLines(si, con = file.path(dirs$out, "session_info.txt"))
 
 pk <- as.data.frame(installed.packages()[, c("Package", "Version")], stringsAsFactors = FALSE)
 pk <- pk[order(pk$Package), , drop = FALSE]
-readr::write_tsv(pk, file.path(out_dir, "package_versions.tsv"))
+if (!requireNamespace("readr", quietly = TRUE)) install.packages("readr")
+readr::write_tsv(pk, file.path(dirs$out, "package_versions.tsv"))
 
 message("✅ Step 00 complete")
-message("• renv.lock: ", normalizePath("renv.lock"))
-message("• session:   ", normalizePath(file.path(out_dir, "session_info.txt")))
-message("• versions:  ", normalizePath(file.path(out_dir, "package_versions.tsv")))
+message("• renv.lock: ", if (file.exists("renv.lock")) normalizePath("renv.lock") else "not found")
+message("• session:   ", normalizePath(file.path(dirs$out, "session_info.txt")))
+message("• versions:  ", normalizePath(file.path(dirs$out, "package_versions.tsv")))
