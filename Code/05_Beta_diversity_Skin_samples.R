@@ -49,7 +49,8 @@ save_plot <- function(p, filename_base, width = 7, height = 6, dpi = 600) {
 # 3. Input and output
 # Change here if your file path is different
 # -----------------------------------------------------------------------------
-input_rds  <- "Results/Results_02C_contaminant_removal_from_blanks/microeco_cleaned_after_blank_contaminants.rds"
+#input_rds  <- "Results/Results_02C_contaminant_removal_from_blanks/microeco_cleaned_after_blank_contaminants.rds"
+input_rds  <- "Results/Results_Step_03_A_rarefaction_Skin_for_alpha_diet/microeco_skin_rarefied_20000.rds"
 output_dir <- "results/Results_Step_06_beta_diversity_Skin_samples"
 fig_dir    <- file.path(output_dir, "figures")
 tab_dir    <- file.path(output_dir, "tables")
