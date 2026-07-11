@@ -30,9 +30,6 @@ The 16S rRNA gene V3–V4 amplicon sequences generated in this study have been d
 **PRJEB83870**  
 Study accession: **ERP167439**
 
-All scripts used for bioinformatics processing and microbial ecology statistical analyses are available in this repository:
-
-<https://github.com/JayalalKJ/skin_microbiota>
 
 ## Funding and acknowledgements
 
