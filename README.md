@@ -206,7 +206,7 @@ Sensitive, restricted, or personally identifiable information must not be commit
 Clone the repository:
 
 ```bash
-git clone <repository-url>
+git clone <https://github.com/JayalalKJ/skin_microbiota.git>
 cd skin_microbiota
 ```
 
