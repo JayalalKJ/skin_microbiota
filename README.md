@@ -99,7 +99,6 @@ Adapter-linked fusion primers were used for library preparation. PCR products we
 
 Sequencing was performed by BGI on the **DNBSEQ-G400** platform using **2 × 300 bp paired-end sequencing**.
 
-> Before public release, verify the extraction-kit name, sequencing provider, sequencing platform, read length, primer sequences, and targeted variable region against the final laboratory and sequencing reports.
 
 ## Bioinformatics Workflow
 
@@ -206,7 +205,7 @@ Sensitive, restricted, or personally identifiable information must not be commit
 Clone the repository:
 
 ```bash
-git clone <https://github.com/JayalalKJ/skin_microbiota.git>
+git clone https://github.com/JayalalKJ/skin_microbiota.git
 cd skin_microbiota
 ```
 
