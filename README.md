@@ -1,5 +1,4 @@
 # skin_microbiota
-# skin_microbiota
 
 This repository contains the bioinformatics and microbial ecology analysis scripts used for the 16S rRNA gene amplicon analysis of Atlantic salmon skin microbiota. The work was carried out as part of my PhD research at UiT – The Arctic University of Norway and contributed to the project/paper:
 
