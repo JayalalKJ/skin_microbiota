@@ -10,7 +10,7 @@ Authors: Hans Chr. Eilertsen, Jayalal K. Jayanthan, Anette Hustad, Dhivya Borra 
 
 The scripts in this repository were used to process and analyse 16S rRNA gene V3–V4 amplicon sequencing data generated from salmon skin microbiota samples. The workflow includes sequence quality control, contig assembly, filtering, chimera removal, taxonomic classification, OTU based community analysis, and downstream microbial ecology statistics and visualisation(phyloseq https://joey711.github.io/phyloseq/ AND microeco https://chiliubio.github.io/microeco_tutorial/).
 
-The bioinformatics processing was based on the **mothur MiSeq SOP** workflow, adapted for the dataset used in this study. The mothur MiSeq SOP is described in:
+The bioinformatics processing was based on the **mothur MiSeq SOP** workflow(https://mothur.org/wiki/miseq_sop/), adapted for the dataset used in this study. The mothur MiSeq SOP is described in:
 
 Kozich JJ, Westcott SL, Baxter NT, Highlander SK, Schloss PD. 2013.  
 **Development of a dual-index sequencing strategy and curation pipeline for analyzing amplicon sequence data on the MiSeq Illumina sequencing platform.**  
@@ -24,9 +24,8 @@ This repository is made openly available in line with UiT – The Arctic Univers
 
 ## Data availability
 
-The 16S rRNA gene V3–V4 amplicon sequences generated in this study have been deposited in the European Nucleotide Archive, ENA, under BioProject accession:
-
-**PRJEB83870**  
+The 16S rRNA gene V3–V4 amplicon sequences generated in this study have been deposited in the European Nucleotide Archive, ENA, under 
+BioProject accession: **PRJEB83870**  
 Study accession: **ERP167439**
 
 
