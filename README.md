@@ -36,7 +36,7 @@ This limitation should be retained in all analyses, figures, captions, manuscrip
 **Authors:**  
 Hans Chr. Eilertsen, Jayalal K. Jayanthan, Anette Hustad, Dhivya Borra Thiyagarajan, Edel O. Elvevoll, Gunilla K. Eriksen, Jo H. Strømholt, John-Steinar Bergum, Espen Holst Hansen, Karl-Erik Eilertsen, Elisabeth Ytteborg, Gunhild Seljehaug Johansson, Stein Harris Olsen, Gerrit Timmerhaus, Mads Melingen, and Sten Siikavuopio.
 
-Add the final journal citation and DOI here after publication.
+""Final journal citation and DOI here after publication""-REMINDER.
 
 ## Experimental Design and Sampling
 
