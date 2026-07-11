@@ -1,6 +1,6 @@
 # skin_microbiota
 
-This repository contains the bioinformatics and microbial ecology analysis scripts used for the 16S rRNA gene amplicon analysis of Atlantic salmon skin microbiota. The work was carried out as part of my PhD research at UiT – The Arctic University of Norway and contributed to the project/paper:
+This repository contains the bioinformatics and microbial ecology analysis scripts used for 16S rRNA gene amplicon analysis of Atlantic salmon skin microbiota. The work was conducted as part of my PhD research in the Seafood Science Research Group at UiT – The Arctic University of Norway, under the supervision of Professor Edel O. Elvevoll, Professor Emeritus Bjarne Landfald, and Professor Karl-Erik Eilertsen.
 
 **Diatom biomass as a functional feed ingredient: Effects on skin, gut, fillet quality and salmon lice resistance**
 
@@ -8,7 +8,7 @@ Authors: Hans Chr. Eilertsen, Jayalal K. Jayanthan, Anette Hustad, Dhivya Borra 
 
 ## Project overview
 
-The scripts in this repository were used to process and analyse 16S rRNA gene V3–V4 amplicon sequencing data generated from salmon skin microbiota samples. The workflow includes sequence quality control, contig assembly, filtering, chimera removal, taxonomic classification, OTU/ASV-based community analysis, and downstream microbial ecology statistics and visualisation.
+The scripts in this repository were used to process and analyse 16S rRNA gene V3–V4 amplicon sequencing data generated from salmon skin microbiota samples. The workflow includes sequence quality control, contig assembly, filtering, chimera removal, taxonomic classification, OTU based community analysis, and downstream microbial ecology statistics and visualisation(phyloseq https://joey711.github.io/phyloseq/ AND microeco https://chiliubio.github.io/microeco_tutorial/).
 
 The bioinformatics processing was based on the **mothur MiSeq SOP** workflow, adapted for the dataset used in this study. The mothur MiSeq SOP is described in:
 
@@ -32,14 +32,29 @@ Study accession: **ERP167439**
 
 ## Funding and acknowledgements
 
+
 This research was funded by Innovation Norway grant **2021/312146**, Norwegian Research Council grant **NFR 328654**, Skattefunn grant **15732**, and EU grant **IGNITION 101084651**.
 
-The authors would also like to acknowledge Randi Olsen at the Advanced Microscopy Core Facility at UiT – The Arctic University of Norway for assistance with sample preparation for SEM microscopy.
+Jayalal K. Jayanthan’s PhD research was funded by UiT – The Arctic University of Norway through the SECURE project, Cristin grant ID 2061344.
 
 ## Conflict of interest
 
 The authors declare no conflict of interest.
 
+
+##Contact
+
+Jayalal K. Jayanthan
+PhD Candidate, 2021–2026
+Seafood Science Research Group
+The Norwegian College of Fishery Science
+Faculty of Biosciences, Fisheries and Economics
+UiT – The Arctic University of Norway
+Muninbakken 21, 9019 Tromsø, Norway
+jayalal.p.kalathil@uit.no
+
 ## License
 
 This repository is distributed under the MIT License.
+
+
