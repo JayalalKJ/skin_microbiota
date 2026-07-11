@@ -240,7 +240,7 @@ Depending on the configuration of the scripts, the workflow generates:
 - PERMANOVA and PERMDISP results
 - Taxonomic abundance tables
 - Community-composition figures
-- Publication-ready summary tables and graphics
+- Publication-ready summary tables and graphics; however, final figures may require additional annotation, layout refinement, or formatting in GraphPad Prism, BioRender, or other figure-editing software to meet journal-specific requirements.
 
 Generated outputs should be written to dedicated results directories and should not overwrite raw or intermediate input data.
 
