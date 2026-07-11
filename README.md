@@ -18,27 +18,6 @@ Kozich JJ, Westcott SL, Baxter NT, Highlander SK, Schloss PD. 2013.
 
 If using this repository or workflow, please cite the mothur MiSeq SOP and indicate the date the SOP was accessed.
 
-## Open science statement
-
-This repository is made openly available in line with UiT – The Arctic University of Norway’s open science principles and PhD research requirements. UiT supports the principle of making research **“as open as possible, as closed as necessary”**, including open access to publications, research data, software, source code, and methodology. By sharing these scripts, the aim is to improve transparency, reproducibility, and re-use of the bioinformatics and statistical workflow used in this study.
-
-
-## Data management and open science
-
-This repository is made available in accordance with the Data Management Plan from my original PhD proposal/agreement at UiT – The Arctic University of Norway. The plan states that data, code, software, algorithms, and bioinformatics pipelines generated during the PhD project should be stored and shared in a reproducible manner after publication.
-
-The 16S rRNA gene amplicon sequences generated in this study are deposited in the European Nucleotide Archive, ENA, under:
-
-**BioProject accession:** PRJEB83870  
-**Study accession:** ERP167439 
-
-## Data availability
-
-The 16S rRNA gene V3–V4 amplicon sequences generated in this study have been deposited in the European Nucleotide Archive, ENA, under 
-BioProject accession: **PRJEB83870**  
-Study accession: **ERP167439**
-
-
 ## Open Science and Data Availability
 
 This repository is made openly available in accordance with the open science principles of [UiT – The Arctic University of Norway](https://en.uit.no/) and the Data Management Plan established for this PhD project.
