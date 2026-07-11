@@ -22,11 +22,45 @@ If using this repository or workflow, please cite the mothur MiSeq SOP and indic
 
 This repository is made openly available in line with UiT – The Arctic University of Norway’s open science principles and PhD research requirements. UiT supports the principle of making research **“as open as possible, as closed as necessary”**, including open access to publications, research data, software, source code, and methodology. By sharing these scripts, the aim is to improve transparency, reproducibility, and re-use of the bioinformatics and statistical workflow used in this study.
 
+
+## Data management and open science
+
+This repository is made available in accordance with the Data Management Plan from my original PhD proposal/agreement at UiT – The Arctic University of Norway. The plan states that data, code, software, algorithms, and bioinformatics pipelines generated during the PhD project should be stored and shared in a reproducible manner after publication.
+
+The 16S rRNA gene amplicon sequences generated in this study are deposited in the European Nucleotide Archive, ENA, under:
+
+**BioProject accession:** PRJEB83870  
+**Study accession:** ERP167439 
+
 ## Data availability
 
 The 16S rRNA gene V3–V4 amplicon sequences generated in this study have been deposited in the European Nucleotide Archive, ENA, under 
 BioProject accession: **PRJEB83870**  
 Study accession: **ERP167439**
+
+
+## Open Science and Data Availability
+
+This repository is made openly available in accordance with the open science principles of [UiT – The Arctic University of Norway](https://en.uit.no/) and the Data Management Plan established for this PhD project.
+
+UiT supports the principle that research should be **“as open as possible, as closed as necessary”**, including open access to:
+
+* Publications
+* Research data
+* Software and source code
+* Research methods
+* Algorithms and bioinformatics pipelines
+
+The scripts and workflows provided in this repository are shared to improve the transparency, reproducibility, and re-use of the bioinformatics and statistical analyses performed in this study.
+
+In accordance with the original PhD project agreement, the research data, code, software, algorithms, and bioinformatics pipelines generated during the project are stored and shared in a reproducible manner following publication.
+
+### Sequencing Data
+
+The 16S rRNA gene V3–V4 amplicon sequencing data generated in this study have been deposited in the [European Nucleotide Archive (ENA)](https://www.ebi.ac.uk/ena/browser/home) under the following accession numbers:
+
+* **BioProject accession:** [`PRJEB83870`](https://www.ebi.ac.uk/ena/browser/view/PRJEB83870)
+* **Study accession:** [`ERP167439`](https://www.ebi.ac.uk/ena/browser/view/ERP167439)
 
 
 ## Funding and acknowledgements
