@@ -1,4 +1,4 @@
-# Skin Microbiota Analysis Pipeline
+# Skin microbiota analysis pipeline
 
 This repository contains R scripts used for bioinformatics and microbial ecology analysis of Atlantic salmon skin microbiota.
 
