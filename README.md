@@ -31,7 +31,7 @@ This limitation should be retained in all analyses, figures, captions, manuscrip
 
 ## Associated Manuscript
 
-**Diatom biomass as a functional feed ingredient: Effects on skin, gut, fillet quality, and salmon lice resistance**
+**Diatom biomass as a feed ingredient for Atlantic salmon: Effects on salmon lice resistance, health and quality**
 
 **Authors:**  
 Hans Chr. Eilertsen, Jayalal K. Jayanthan, Anette Hustad, Dhivya Borra Thiyagarajan, Edel O. Elvevoll, Gunilla K. Eriksen, Jo H. Strømholt, John-Steinar Bergum, Espen Holst Hansen, Karl-Erik Eilertsen, Elisabeth Ytteborg, Gunhild Seljehaug Johansson, Stein Harris Olsen, Gerrit Timmerhaus, Mads Melingen, and Sten Siikavuopio.
